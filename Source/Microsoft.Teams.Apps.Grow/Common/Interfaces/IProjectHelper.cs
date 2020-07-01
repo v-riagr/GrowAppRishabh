@@ -41,7 +41,7 @@ namespace Microsoft.Teams.Apps.Grow.Common.Interfaces
         /// <param name="projects">Project entities.</param>
         /// <param name="searchText">Search text for skills.</param>
         /// <returns>Represents a collection of unique skills.</returns>
-        public IEnumerable<string> GetUniqueSkills(IEnumerable<ProjectEntity> projects, string searchText);
+        IEnumerable<string> GetUniqueSkills(IEnumerable<ProjectEntity> projects, string searchText);
 
         /// <summary>
         /// Get filtered projects joined by a user.
