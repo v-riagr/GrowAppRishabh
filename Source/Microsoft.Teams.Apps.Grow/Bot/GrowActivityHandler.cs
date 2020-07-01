@@ -1,4 +1,4 @@
-﻿// <copyright file="GrowActivityHandler.cs" company="Microsoft">
+// <copyright file="GrowActivityHandler.cs" company="Microsoft">
 // Copyright (c) Microsoft. All rights reserved.
 // </copyright>
 
@@ -256,25 +256,27 @@ namespace Microsoft.Teams.Apps.Grow.Bot
                 var postedValues = JsonConvert.DeserializeObject<BotCommand>(JObject.Parse(taskModuleRequest.Data.ToString()).SelectToken("data").ToString());
                 var command = postedValues.Text;
 
-                return command.ToUpperInvariant() switch
+                switch (command.ToUpperInvariant())
                 {
-                    // Messaging Extension attachment card view project details button.
-                    Constants.ViewProjectDetail => new TaskModuleResponse
-                    {
-                        Task = new TaskModuleContinueResponse
+                    case Constants.ViewProjectDetail:
+                        return new TaskModuleResponse
                         {
-                            Type = "continue",
-                            Value = new TaskModuleTaskInfo()
+                            Task = new TaskModuleContinueResponse
                             {
-                                Url = $"{this.botOptions.Value.AppBaseUri}/join-project?projectId={postedValues.ProjectId}&currentUserId={activity.From.AadObjectId}&createdByUserId={postedValues.CreatedByUserId}",
-                                Height = TaskModuleHeight,
-                                Width = TaskModuleWidth,
-                                Title = this.localizer.GetString("ApplicationName"),
+                                Type = "continue",
+                                Value = new TaskModuleTaskInfo()
+                                {
+                                    Url = $"{this.botOptions.Value.AppBaseUri}/join-project?projectId={postedValues.ProjectId}&currentUserId={activity.From.AadObjectId}&createdByUserId={postedValues.CreatedByUserId}",
+                                    Height = TaskModuleHeight,
+                                    Width = TaskModuleWidth,
+                                    Title = this.localizer.GetString("ApplicationName"),
+                                },
                             },
-                        },
-                    },
-                    _ => default,
-                };
+                        };
+
+                    default:
+                        return null;
+                }
             }
             catch (Exception ex)
             {
