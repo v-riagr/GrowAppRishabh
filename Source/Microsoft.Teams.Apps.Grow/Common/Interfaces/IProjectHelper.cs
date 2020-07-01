@@ -13,7 +13,7 @@ namespace Microsoft.Teams.Apps.Grow.Common.Interfaces
     public interface IProjectHelper
     {
         /// <summary>
-        /// Get filtered team posts as per the configured skills.
+        /// Get filtered projects as per the configured skills.
         /// </summary>
         /// <param name="projects">A collection of projects.</param>
         /// <param name="searchText">Search text for skills.</param>
@@ -41,7 +41,7 @@ namespace Microsoft.Teams.Apps.Grow.Common.Interfaces
         /// <param name="projects">Project entities.</param>
         /// <param name="searchText">Search text for skills.</param>
         /// <returns>Represents a collection of unique skills.</returns>
-        IEnumerable<string> GetUniqueSkills(IEnumerable<ProjectEntity> projects, string searchText);
+        public IEnumerable<string> GetUniqueSkills(IEnumerable<ProjectEntity> projects, string searchText);
 
         /// <summary>
         /// Get filtered projects joined by a user.

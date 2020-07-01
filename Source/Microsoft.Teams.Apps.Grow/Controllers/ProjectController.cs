@@ -17,6 +17,7 @@ namespace Microsoft.Teams.Apps.Grow.Controllers
     using Microsoft.Teams.Apps.Grow.Common.Interfaces;
     using Microsoft.Teams.Apps.Grow.Helpers;
     using Microsoft.Teams.Apps.Grow.Models;
+    using static Microsoft.Teams.Apps.Grow.Helpers.ProjectStatusHelper;
 
     /// <summary>
     /// Controller to handle project API operations.
@@ -42,11 +43,6 @@ namespace Microsoft.Teams.Apps.Grow.Controllers
         private readonly IProjectStorageProvider projectStorageProvider;
 
         /// <summary>
-        /// Provides methods for acquired skills operations from database.
-        /// </summary>
-        private readonly IAcquiredSkillStorageProvider acquiredSkillStorageProvider;
-
-        /// <summary>
         /// Project search service for fetching project with search criteria and filters.
         /// </summary>
         private readonly IProjectSearchService projectSearchService;
@@ -63,7 +59,6 @@ namespace Microsoft.Teams.Apps.Grow.Controllers
         /// <param name="telemetryClient">The Application Insights telemetry client.</param>
         /// <param name="projectHelper">Helper for creating models and filtering projects as per criteria.</param>
         /// <param name="projectStorageProvider">Provides methods for add, update and delete project operations from database.</param>
-        /// <param name="acquiredSkillStorageProvider">Provides methods for acquired skills operations from database.</param>
         /// <param name="projectSearchService">Project search service for fetching project with search criteria and filters.</param>
         /// <param name="notificationHelper">Provides methods to send notifications to users.</param>
         public ProjectController(
@@ -71,7 +66,6 @@ namespace Microsoft.Teams.Apps.Grow.Controllers
             TelemetryClient telemetryClient,
             IProjectHelper projectHelper,
             IProjectStorageProvider projectStorageProvider,
-            IAcquiredSkillStorageProvider acquiredSkillStorageProvider,
             IProjectSearchService projectSearchService,
             NotificationHelper notificationHelper)
             : base(telemetryClient)
@@ -79,7 +73,6 @@ namespace Microsoft.Teams.Apps.Grow.Controllers
             this.logger = logger;
             this.projectHelper = projectHelper;
             this.projectStorageProvider = projectStorageProvider;
-            this.acquiredSkillStorageProvider = acquiredSkillStorageProvider;
             this.projectSearchService = projectSearchService;
             this.notificationHelper = notificationHelper;
         }
@@ -136,7 +129,7 @@ namespace Microsoft.Teams.Apps.Grow.Controllers
             if (projectDetail.ProjectStartDate > projectDetail.ProjectEndDate)
 #pragma warning restore CA1062 // project details are validated by model validations for null check and is responded with bad request status
             {
-                return this.BadRequest(new { message = "Project start date must be less than end date." });
+                return this.BadRequest("Project start date must be less than end date.");
             }
 
             try
@@ -144,7 +137,7 @@ namespace Microsoft.Teams.Apps.Grow.Controllers
                 var projectEntity = new ProjectEntity
                 {
                     ProjectId = Guid.NewGuid().ToString(),
-                    Status = 1, // Project status as 'Not Started'.
+                    Status = (int)StatusEnum.NotStarted, // Project status as 'Not Started'.
                     CreatedByUserId = this.UserAadId,
                     CreatedByName = this.UserName,
                     CreatedDate = DateTime.UtcNow,
@@ -284,7 +277,7 @@ namespace Microsoft.Teams.Apps.Grow.Controllers
                 var projectDetails = await this.projectStorageProvider.GetProjectAsync(this.UserAadId, projectId);
 
                 // Only projects with 'Not started' status are allowed to delete.
-                if (projectDetails == null && projectDetails.IsRemoved && projectDetails.Status == 1)
+                if (projectDetails == null && projectDetails.IsRemoved && projectDetails.Status == (int)StatusEnum.NotStarted)
                 {
                     this.logger.LogError($"Project {projectId} created by user {this.UserAadId} not found for deletion.");
                     return this.NotFound($"Cannot find project {projectId} created by user {this.UserAadId} for deletion.");

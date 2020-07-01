@@ -217,7 +217,7 @@ namespace Microsoft.Teams.Apps.Grow.Controllers
                 var projectDetails = await this.projectStorageProvider.GetProjectAsync(this.UserAadId, closeProjectModel.ProjectId);
 
                 // Only projects with 'Active' status are allowed to close.
-                if (projectDetails == null && projectDetails.IsRemoved && projectDetails.Status == 2)
+                if (projectDetails == null && projectDetails.IsRemoved && projectDetails.Status == (int)StatusEnum.Active)
                 {
                     this.logger.LogError($"Project {closeProjectModel.ProjectId} does not exists.");
                     this.RecordEvent("Close project - HTTP Post call failed");
@@ -316,10 +316,10 @@ namespace Microsoft.Teams.Apps.Grow.Controllers
         /// Call to leave a particular project joined by user.
         /// </summary>
         /// <param name="projectId">Id of the project to be deleted.</param>
-        /// <param name="createdByuserId">Azure Active Directory id of project owner.</param>
+        /// <param name="createdByUserId">Azure Active Directory id of project owner.</param>
         /// <returns>Returns true for successful operation.</returns>
         [HttpDelete("leave-project")]
-        public async Task<IActionResult> LeaveProjectAsync(string projectId, string createdByuserId)
+        public async Task<IActionResult> LeaveProjectAsync(string projectId, string createdByUserId)
         {
             this.logger.LogInformation("Call to leave a project already joined by participant.");
 
@@ -329,25 +329,25 @@ namespace Microsoft.Teams.Apps.Grow.Controllers
                 return this.GetErrorResponse(StatusCodes.Status400BadRequest, "Argument projectId is either null or empty.");
             }
 
-            if (string.IsNullOrEmpty(createdByuserId))
+            if (string.IsNullOrEmpty(createdByUserId))
             {
-                this.logger.LogError("Argument createdByuserId is either null or empty.");
-                return this.GetErrorResponse(StatusCodes.Status400BadRequest, "Argument createdByuserId is either null or empty.");
+                this.logger.LogError("Argument createdByUserId is either null or empty.");
+                return this.GetErrorResponse(StatusCodes.Status400BadRequest, "Argument createdByUserId is either null or empty.");
             }
 
             try
             {
-                var projectEntity = await this.projectStorageProvider.GetProjectAsync(createdByuserId, projectId);
+                var projectEntity = await this.projectStorageProvider.GetProjectAsync(createdByUserId, projectId);
 
                 if (projectEntity == null && projectEntity.IsRemoved)
                 {
-                    this.logger.LogInformation($"Project {projectId} not found for user {createdByuserId}.");
+                    this.logger.LogInformation($"Project {projectId} not found for user {createdByUserId}.");
                     return this.GetErrorResponse(StatusCodes.Status400BadRequest, $"Project not found.");
                 }
 
                 if (string.IsNullOrEmpty(projectEntity.ProjectParticipantsUserIds))
                 {
-                    this.logger.LogInformation($"Leave project operation failed for user {createdByuserId} and project {projectId}.");
+                    this.logger.LogInformation($"Leave project operation failed for user {createdByUserId} and project {projectId}.");
                     return this.NotFound(new { message = "Project not found" });
                 }
 

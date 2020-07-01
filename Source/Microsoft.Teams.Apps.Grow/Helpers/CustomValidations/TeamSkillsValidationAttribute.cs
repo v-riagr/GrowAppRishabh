@@ -16,16 +16,16 @@ namespace Microsoft.Teams.Apps.Grow.Helpers.CustomValidations
         /// <summary>
         /// Initializes a new instance of the <see cref="TeamSkillsValidationAttribute"/> class.
         /// </summary>
-        /// <param name="skillsMaxCount">Max count of skills for validation.</param>
-        public TeamSkillsValidationAttribute(int skillsMaxCount)
+        /// <param name="maximumCount">Max count of skills for validation.</param>
+        public TeamSkillsValidationAttribute(int maximumCount)
         {
-            this.SkillsMaxCount = skillsMaxCount;
+            this.MaximumCount = maximumCount;
         }
 
         /// <summary>
         /// Gets max count of skills for validation.
         /// </summary>
-        public int SkillsMaxCount { get; }
+        public int MaximumCount { get; }
 
         /// <summary>
         /// Validate skill based on skill length and number of skills separated by comma.
@@ -41,7 +41,7 @@ namespace Microsoft.Teams.Apps.Grow.Helpers.CustomValidations
             {
                 var skillsList = skills.Split(';');
 
-                if (skillsList.Length > this.SkillsMaxCount)
+                if (skillsList.Length > this.MaximumCount)
                 {
                     return new ValidationResult("Max skills count exceeded");
                 }

@@ -14,7 +14,7 @@ namespace Microsoft.Teams.Apps.Grow.Controllers
     using Error = Microsoft.Teams.Apps.Grow.Models.ErrorResponse;
 
     /// <summary>
-    /// Base controller to handle good read posts API operations.
+    /// Base controller to handle grow projects API operations.
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]

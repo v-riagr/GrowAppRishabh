@@ -152,7 +152,7 @@ namespace Microsoft.Teams.Apps.Grow.Controllers
                 if (teamSkillDetail != null)
                 {
                     this.RecordEvent("Team skills - HTTP Get call succeeded");
-                    return this.Ok(teamSkillDetail?.Skills?.Split(";"));
+                    return this.Ok(teamSkillDetail.Skills?.Split(";"));
                 }
                 else
                 {

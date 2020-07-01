@@ -18,8 +18,16 @@ namespace Microsoft.Teams.Apps.Grow.Models
         /// </summary>
         public string UserAadObjectId
         {
-            get { return this.PartitionKey; }
-            set { this.PartitionKey = value; }
+            get
+            {
+                return this.PartitionKey;
+            }
+
+            set
+            {
+                this.PartitionKey = value;
+                this.RowKey = value;
+            }
         }
 
         /// <summary>

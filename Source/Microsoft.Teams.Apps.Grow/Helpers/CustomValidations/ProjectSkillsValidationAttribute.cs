@@ -16,10 +16,12 @@ namespace Microsoft.Teams.Apps.Grow.Helpers.CustomValidations
         /// </summary>
         /// <param name="minimumCount">Minimum count of skills for validation.</param>
         /// <param name="maximumCount">Maximum count of skills for validation.</param>
-        public ProjectSkillsValidationAttribute(int minimumCount, int maximumCount)
+        /// <param name="maximumLength">Maximum length of skills for validation.</param>
+        public ProjectSkillsValidationAttribute(int minimumCount, int maximumCount, int maximumLength = 20)
         {
             this.MinimumCount = minimumCount;
             this.MaximumCount = maximumCount;
+            this.MaximumLength = maximumLength;
         }
 
         /// <summary>
@@ -31,6 +33,11 @@ namespace Microsoft.Teams.Apps.Grow.Helpers.CustomValidations
         /// Gets maximum count of skills for validation.
         /// </summary>
         public int MaximumCount { get; }
+
+        /// <summary>
+        /// Gets maximum length of skills for validation.
+        /// </summary>
+        public int MaximumLength { get; }
 
         /// <summary>
         /// Validate skill based on skill length and number of skills separated by comma.
@@ -60,7 +67,7 @@ namespace Microsoft.Teams.Apps.Grow.Helpers.CustomValidations
                             return new ValidationResult("Skill cannot be null or empty.");
                         }
 
-                        if (skill.Length > 20)
+                        if (skill.Length > this.MaximumLength)
                         {
                             return new ValidationResult("Maximum skill length exceeded.");
                         }

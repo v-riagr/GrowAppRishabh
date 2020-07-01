@@ -80,10 +80,14 @@ namespace Microsoft.Teams.Apps.Grow.Helpers
         {
             try
             {
-                skills = skills ?? throw new ArgumentNullException(nameof(skills));
-                var projectSkills = skills.Split(';').Where(skill => !string.IsNullOrWhiteSpace(skill));
+                if (!string.IsNullOrEmpty(skills))
+                {
+                    var projectSkills = skills.Split(';').Where(skill => !string.IsNullOrWhiteSpace(skill));
 
-                return string.Join(" ", projectSkills);
+                    return string.Join(" ", projectSkills);
+                }
+
+                return string.Empty;
             }
             catch (Exception ex)
             {
@@ -221,11 +225,11 @@ namespace Microsoft.Teams.Apps.Grow.Helpers
                 }
 
                 StringBuilder projectStatusQuery = new StringBuilder();
-                var projectStatusData = status.Split(';').Where(projectStatus => !string.IsNullOrWhiteSpace(projectStatus)).Select(postType => postType.Trim()).ToList();
+                var projectStatusData = status.Split(';').Where(projectStatus => !string.IsNullOrWhiteSpace(projectStatus)).Select(postType => postType.Trim());
 
-                if (projectStatusData.Count > 1)
+                if (projectStatusData.Count() > 1)
                 {
-                    var projects = projectStatusData.Take(projectStatusData.Count - 1).ToList();
+                    var projects = projectStatusData.Take(projectStatusData.Count() - 1).ToList();
                     projects.ForEach(projectStatus =>
                     {
                         projectStatusQuery.Append($"{nameof(ProjectEntity.Status)} eq {projectStatus} or ");
@@ -262,11 +266,11 @@ namespace Microsoft.Teams.Apps.Grow.Helpers
                 }
 
                 StringBuilder projectOwnerNamesQuery = new StringBuilder();
-                var ownerNamesData = projectOwnerNames.Split(';').Where(name => !string.IsNullOrWhiteSpace(name)).Select(name => name.Trim()).ToList();
+                var ownerNamesData = projectOwnerNames.Split(';').Where(name => !string.IsNullOrWhiteSpace(name)).Select(name => name.Trim());
 
-                if (ownerNamesData.Count > 1)
+                if (ownerNamesData.Count() > 1)
                 {
-                    var owners = ownerNamesData.Take(ownerNamesData.Count - 1).ToList();
+                    var owners = ownerNamesData.Take(ownerNamesData.Count() - 1).ToList();
                     owners.ForEach(owner =>
                     {
                         projectOwnerNamesQuery.Append($"{nameof(ProjectEntity.CreatedByName)} eq '{owner}' or ");

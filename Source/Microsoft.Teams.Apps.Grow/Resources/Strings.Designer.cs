@@ -147,24 +147,6 @@ namespace Microsoft.Teams.Apps.Grow.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You can set digest preference by selecting the frequency and tab you wants to follow..
-        /// </summary>
-        public static string DigestPreferenceCardContent {
-            get {
-                return ResourceManager.GetString("DigestPreferenceCardContent", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to You can configure more topics or different ones as well as change how often the digest is posted..
-        /// </summary>
-        public static string DigestPreferenceCardHeaderText {
-            get {
-                return ResourceManager.GetString("DigestPreferenceCardHeaderText", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Something went wrong. Try again in a few minutes..
         /// </summary>
         public static string ErrorMessage {
@@ -332,15 +314,6 @@ namespace Microsoft.Teams.Apps.Grow.Resources {
         public static string TabName {
             get {
                 return ResourceManager.GetString("TabName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Configure.
-        /// </summary>
-        public static string TeamPreferenceCardConfigureButtonText {
-            get {
-                return ResourceManager.GetString("TeamPreferenceCardConfigureButtonText", resourceCulture);
             }
         }
         

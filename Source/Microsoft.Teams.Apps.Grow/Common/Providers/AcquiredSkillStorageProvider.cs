@@ -46,7 +46,7 @@ namespace Microsoft.Teams.Apps.Grow.Common.Providers
         {
             await this.EnsureInitializedAsync();
             TableOperation addOrUpdateOperation = TableOperation.InsertOrReplace(entity);
-            var result = await this.GrowCloudTable.ExecuteAsync(addOrUpdateOperation);
+            var result = await this.CloudTable.ExecuteAsync(addOrUpdateOperation);
             return result.HttpStatusCode == (int)HttpStatusCode.NoContent;
         }
 
@@ -68,7 +68,7 @@ namespace Microsoft.Teams.Apps.Grow.Common.Providers
 
             do
             {
-                var queryResult = await this.GrowCloudTable.ExecuteQuerySegmentedAsync(query, continuationToken);
+                var queryResult = await this.CloudTable.ExecuteQuerySegmentedAsync(query, continuationToken);
                 if (queryResult?.Results != null)
                 {
                     acquiredSkills.AddRange(queryResult.Results);

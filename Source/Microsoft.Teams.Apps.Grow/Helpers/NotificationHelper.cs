@@ -17,7 +17,6 @@ namespace Microsoft.Teams.Apps.Grow.Helpers
     using Microsoft.Extensions.Localization;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
-    using Microsoft.Teams.Apps.Grow.Bot;
     using Microsoft.Teams.Apps.Grow.Cards;
     using Microsoft.Teams.Apps.Grow.Common;
     using Microsoft.Teams.Apps.Grow.Common.Interfaces;
@@ -61,11 +60,6 @@ namespace Microsoft.Teams.Apps.Grow.Helpers
         /// <summary>
         /// A set of key/value application configuration properties.
         /// </summary>
-        private readonly IOptions<GrowActivityHandlerOptions> tabOptions;
-
-        /// <summary>
-        /// A set of key/value application configuration properties.
-        /// </summary>
         private readonly IOptions<BotSettings> botOptions;
 
         /// <summary>
@@ -94,7 +88,6 @@ namespace Microsoft.Teams.Apps.Grow.Helpers
         /// <param name="logger">Sends logs to the Application Insights service.</param>
         /// <param name="botFrameworkHttpAdapter">Instance of bot framework HTTP adapter</param>
         /// <param name="aadOptions">A set of key/value application configuration properties with AAD settings.</param>
-        /// <param name="tabOptions">A set of key/value application configuration properties with tab settings.</param>
         /// <param name="botOptions">A set of key/value application configuration properties with bot settings.</param>
         /// <param name="userMembershipProvider">Provider instance to work with user team membership data.</param>
         /// <param name="localizer">The current cultures' string localizer.</param>
@@ -102,7 +95,6 @@ namespace Microsoft.Teams.Apps.Grow.Helpers
             ILogger<NotificationHelper> logger,
             IBotFrameworkHttpAdapter botFrameworkHttpAdapter,
             IOptions<AzureActiveDirectorySettings> aadOptions,
-            IOptions<GrowActivityHandlerOptions> tabOptions,
             IOptions<BotSettings> botOptions,
             IUserMembershipProvider userMembershipProvider,
             IStringLocalizer<Strings> localizer)
@@ -110,7 +102,6 @@ namespace Microsoft.Teams.Apps.Grow.Helpers
             this.logger = logger;
             this.botFrameworkHttpAdapter = botFrameworkHttpAdapter;
             this.aadOptions = aadOptions;
-            this.tabOptions = tabOptions;
             this.botOptions = botOptions;
             this.userMembershipProvider = userMembershipProvider;
             this.localizer = localizer;
@@ -196,7 +187,6 @@ namespace Microsoft.Teams.Apps.Grow.Helpers
                 var adaptiveCard = MessageFactory.Attachment(UserNotificationCard.SendProjectDeletionCard(
                     projectEntity.Title,
                     projectEntity.CreatedByName,
-                    this.tabOptions,
                     this.botOptions.Value.ManifestId,
                     this.localizer));
 
@@ -229,7 +219,6 @@ namespace Microsoft.Teams.Apps.Grow.Helpers
                 var adaptiveCard = MessageFactory.Attachment(UserNotificationCard.SendProjectRemovalCard(
                     projectTitle.Trim(),
                     projectOwner,
-                    this.tabOptions,
                     this.botOptions.Value.ManifestId,
                     this.localizer));
                 var userMembershipDetails = await this.userMembershipProvider.GetUserMembershipDataAsync(userId);

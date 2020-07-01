@@ -44,12 +44,6 @@ namespace Microsoft.Teams.Apps.Grow
             string appBaseUrl = configuration.GetValue<string>("App:AppBaseUri");
             string discoverTabEntityId = configuration.GetValue<string>("DiscoverTabEntityId");
 
-            services.Configure<GrowActivityHandlerOptions>(options =>
-            {
-                options.AppBaseUri = appBaseUrl;
-                options.DiscoverTabEntityId = discoverTabEntityId;
-            });
-
             services.Configure<BotSettings>(options =>
             {
                 options.SecurityKey = configuration.GetValue<string>("App:SecurityKey");

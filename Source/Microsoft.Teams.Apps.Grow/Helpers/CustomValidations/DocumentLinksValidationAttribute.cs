@@ -63,11 +63,14 @@ namespace Microsoft.Teams.Apps.Grow.Helpers.CustomValidations
                             return new ValidationResult("Document link doesn't match URL format.");
                         }
                     }
+
+                    return ValidationResult.Success;
                 }
+
+                return new ValidationResult("At least one document link should be provided.");
             }
 
-            // Document links are not mandatory for adding/updating project.
-            return ValidationResult.Success;
+            return new ValidationResult("Document link should be in string format.");
         }
 
         /// <summary>

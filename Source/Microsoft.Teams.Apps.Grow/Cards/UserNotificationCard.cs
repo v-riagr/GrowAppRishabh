@@ -10,8 +10,6 @@ namespace Microsoft.Teams.Apps.Grow.Cards
     using Microsoft.Bot.Schema;
     using Microsoft.Bot.Schema.Teams;
     using Microsoft.Extensions.Localization;
-    using Microsoft.Extensions.Options;
-    using Microsoft.Teams.Apps.Grow.Bot;
     using Microsoft.Teams.Apps.Grow.Common;
     using Microsoft.Teams.Apps.Grow.Models.Card;
     using Microsoft.Teams.Apps.Grow.Resources;
@@ -74,6 +72,7 @@ namespace Microsoft.Teams.Apps.Grow.Cards
                     Text = localizer.GetString("SkillsEndorsedMessage", ownerName),
                     Spacing = AdaptiveSpacing.Medium,
                 });
+
                 for (int i = 0; i < acquiredSkills.Count; i++)
                 {
                     projectClosureCard.Body.Add(new AdaptiveTextBlock
@@ -98,14 +97,12 @@ namespace Microsoft.Teams.Apps.Grow.Cards
         /// </summary>
         /// <param name="projectTitle">Title of project to be deleted.</param>
         /// <param name="ownerName">Owner of project to be deleted.</param>
-        /// <param name="tabOptions">Activity handler options object for getting discover tab ID and app url.</param>
         /// <param name="applicationManifestId">Tab's manifest Id.</param>
         /// <param name="localizer">The current cultures' string localizer.</param>
         /// <returns>Adaptive card with deletion message.</returns>
         public static Attachment SendProjectDeletionCard(
             string projectTitle,
             string ownerName,
-            IOptions<GrowActivityHandlerOptions> tabOptions,
             string applicationManifestId,
             IStringLocalizer<Strings> localizer)
         {
@@ -141,7 +138,7 @@ namespace Microsoft.Teams.Apps.Grow.Cards
                 new AdaptiveOpenUrlAction
                 {
                     Title = localizer.GetString("TabName"),
-                    Url = new Uri($"https://teams.microsoft.com/l/entity/{applicationManifestId}/{tabOptions.Value.DiscoverTabEntityId}"),
+                    Url = new Uri($"https://teams.microsoft.com/l/entity/{applicationManifestId}/{Constants.DiscoverTabEntityId}"),
                 },
             };
 
@@ -157,14 +154,12 @@ namespace Microsoft.Teams.Apps.Grow.Cards
         /// </summary>
         /// <param name="projectTitle">Title of project to be deleted.</param>
         /// <param name="ownerName">Owner of project to be deleted.</param>
-        /// <param name="tabOptions">Activity handler options object for getting discover tab ID and app url.</param>
         /// <param name="applicationManifestId">Tab's manifest Id.</param>
         /// <param name="localizer">The current cultures' string localizer.</param>
         /// <returns>Adaptive card with deletion message.</returns>
         public static Attachment SendProjectRemovalCard(
             string projectTitle,
             string ownerName,
-            IOptions<GrowActivityHandlerOptions> tabOptions,
             string applicationManifestId,
             IStringLocalizer<Strings> localizer)
         {
@@ -200,7 +195,7 @@ namespace Microsoft.Teams.Apps.Grow.Cards
                 new AdaptiveOpenUrlAction
                 {
                     Title = localizer.GetString("TabName"),
-                    Url = new Uri($"https://teams.microsoft.com/l/entity/{applicationManifestId}/{tabOptions.Value.DiscoverTabEntityId}"),
+                    Url = new Uri($"https://teams.microsoft.com/l/entity/{applicationManifestId}/{Constants.DiscoverTabEntityId}"),
                 },
             };
 
@@ -266,7 +261,7 @@ namespace Microsoft.Teams.Apps.Grow.Cards
                     Title = localizer.GetString("ProjectDetails"),
                     Data = new AdaptiveSubmitActionData
                     {
-                        Msteams = new TaskModuleAction(Constants.ViewProjectDetail, new { data = JsonConvert.SerializeObject(new AdaptiveTaskModuleCardAction { Text = Constants.ViewProjectDetail, ProjectId = projectId }) }),
+                        Msteams = new TaskModuleAction(Constants.ViewProjectDetail, JsonConvert.SerializeObject(new AdaptiveTaskModuleCardAction { Text = Constants.ViewProjectDetail, ProjectId = projectId })),
                     },
                 },
             };

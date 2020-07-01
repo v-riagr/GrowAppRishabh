@@ -15,7 +15,6 @@ namespace Microsoft.Teams.Apps.Grow.Helpers
     using Microsoft.Bot.Schema.Teams;
     using Microsoft.Extensions.Localization;
     using Microsoft.Extensions.Options;
-    using Microsoft.Teams.Apps.Grow.Bot;
     using Microsoft.Teams.Apps.Grow.Common;
     using Microsoft.Teams.Apps.Grow.Common.Interfaces;
     using Microsoft.Teams.Apps.Grow.Models;
@@ -54,7 +53,7 @@ namespace Microsoft.Teams.Apps.Grow.Helpers
         /// <summary>
         /// A set of key/value application configuration properties for Activity settings.
         /// </summary>
-        private readonly IOptions<GrowActivityHandlerOptions> options;
+        private readonly IOptions<BotSettings> options;
 
         /// <summary>
         /// Instance of project helper.
@@ -77,7 +76,7 @@ namespace Microsoft.Teams.Apps.Grow.Helpers
         public MessagingExtensionHelper(
             IStringLocalizer<Strings> localizer,
             IProjectSearchService projectSearchService,
-            IOptions<GrowActivityHandlerOptions> options,
+            IOptions<BotSettings> options,
             IProjectHelper projectHelper,
             ProjectStatusHelper projectStatusHelper)
         {
@@ -216,7 +215,7 @@ namespace Microsoft.Teams.Apps.Grow.Helpers
                         Title = this.localizer.GetString("MessagingExtensionCardViewProjectDetailButtonText"),
                         Data = new AdaptiveSubmitActionData
                         {
-                            Msteams = new TaskModuleAction(Constants.ViewProjectDetail, new { data = JsonConvert.SerializeObject(new AdaptiveTaskModuleCardAction { Text = Constants.ViewProjectDetail, ProjectId = project.ProjectId, CreatedByUserId = project.CreatedByUserId }) }),
+                            Msteams = new TaskModuleAction(Constants.ViewProjectDetail, JsonConvert.SerializeObject(new AdaptiveTaskModuleCardAction { Text = Constants.ViewProjectDetail, ProjectId = project.ProjectId, CreatedByUserId = project.CreatedByUserId })),
                         },
                     });
 

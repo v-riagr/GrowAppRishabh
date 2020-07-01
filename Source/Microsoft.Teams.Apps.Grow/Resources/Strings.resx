@@ -158,14 +158,6 @@
     <value>{0} {1}</value>
     <comment>Used in date string format for adaptive card. {0} is for date and {1} is for time.</comment>
   </data>
-  <data name="DigestPreferenceCardContent" xml:space="preserve">
-    <value>You can set digest preference by selecting the frequency and tab you wants to follow.</value>
-    <comment>Digest preference card content.</comment>
-  </data>
-  <data name="DigestPreferenceCardHeaderText" xml:space="preserve">
-    <value>You can configure more topics or different ones as well as change how often the digest is posted.</value>
-    <comment>Digest preference card header text.</comment>
-  </data>
   <data name="ErrorMessage" xml:space="preserve">
     <value>Something went wrong. Try again in a few minutes.</value>
     <comment>Error message when bot throws exception or unable to perform a task (Generic error message).</comment>
@@ -240,10 +232,6 @@
   <data name="TabName" xml:space="preserve">
     <value>All projects</value>
     <comment>All projects tab name</comment>
-  </data>
-  <data name="TeamPreferenceCardConfigureButtonText" xml:space="preserve">
-    <value>Configure</value>
-    <comment>Team configure preference card configure button text.</comment>
   </data>
   <data name="TeamSizeText" xml:space="preserve">
     <value>Team size</value>

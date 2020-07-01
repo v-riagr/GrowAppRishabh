@@ -58,5 +58,15 @@ namespace Microsoft.Teams.Apps.Grow.Common
         /// Describes all projects tab name.
         /// </summary>
         public const string AllProjectsTabName = "All projects";
+
+        /// <summary>
+        /// Describes discover tab entity Id.
+        /// </summary>
+        public const string DiscoverTabEntityId = "DiscoverProjectsTab";
+
+        /// <summary>
+        /// Describes acquired skills tab entity Id.
+        /// </summary>
+        public const string AcquiredSkillsTabEntityId = "AcquiredSkillsTab";
     }
 }

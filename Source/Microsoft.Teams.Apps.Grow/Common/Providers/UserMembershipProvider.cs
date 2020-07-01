@@ -71,7 +71,7 @@ namespace Microsoft.Teams.Apps.Grow.Common.Providers
 
             await this.EnsureInitializedAsync();
             var retrieveOperation = TableOperation.Retrieve<UserMembershipEntity>(userAadObjectId, userAadObjectId);
-            var queryResult = await this.GrowCloudTable.ExecuteAsync(retrieveOperation);
+            var queryResult = await this.CloudTable.ExecuteAsync(retrieveOperation);
 
             if (queryResult?.Result != null)
             {
@@ -101,7 +101,7 @@ namespace Microsoft.Teams.Apps.Grow.Common.Providers
         {
             await this.EnsureInitializedAsync();
             TableOperation addOrUpdateOperation = TableOperation.InsertOrReplace(entity);
-            return await this.GrowCloudTable.ExecuteAsync(addOrUpdateOperation);
+            return await this.CloudTable.ExecuteAsync(addOrUpdateOperation);
         }
     }
 }
