@@ -67,7 +67,7 @@ namespace Microsoft.Teams.Apps.Grow.Bot
 
             if (turnContext != null && turnContext.Activity.Type != ActivityTypes.Event && !this.IsActivityFromExpectedTenant(turnContext))
             {
-                this.logger.LogInformation($"Unexpected tenant id {turnContext?.Activity.Conversation.TenantId}", SeverityLevel.Warning);
+                this.logger.LogWarning($"Unexpected tenant id {turnContext?.Activity.Conversation.TenantId}", SeverityLevel.Warning);
             }
             else
             {
@@ -82,7 +82,9 @@ namespace Microsoft.Teams.Apps.Grow.Bot
         /// <returns>True if context is from expected tenant else false.</returns>
         private bool IsActivityFromExpectedTenant(ITurnContext turnContext)
         {
-            return turnContext.Activity.Conversation.TenantId == this.tenantId;
+            turnContext = turnContext ?? throw new ArgumentNullException(nameof(turnContext));
+
+            return turnContext.Activity?.Conversation?.TenantId == this.tenantId;
         }
     }
 }
