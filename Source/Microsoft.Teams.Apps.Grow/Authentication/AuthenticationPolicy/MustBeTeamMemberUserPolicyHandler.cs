@@ -1,4 +1,4 @@
-﻿// <copyright file="MustBeTeamMemberUserPolicyHandler.cs" company="Microsoft">
+// <copyright file="MustBeTeamMemberUserPolicyHandler.cs" company="Microsoft">
 // Copyright (c) Microsoft. All rights reserved.
 // </copyright>
 
@@ -92,11 +92,13 @@ namespace Microsoft.Teams.Apps.Grow.Authentication.AuthenticationPolicy
                 {
                     // Read the request body, parse out the activity object, and set the parsed culture information.
                     var streamReader = new StreamReader(authorizationFilterContext.HttpContext.Request.Body, Encoding.UTF8, true, 1024, leaveOpen: true);
-                    using var jsonReader = new JsonTextReader(streamReader);
-                    var obj = JObject.Load(jsonReader);
-                    var teamEntity = obj.ToObject<TeamSkillEntity>();
-                    authorizationFilterContext.HttpContext.Request.Body.Seek(0, SeekOrigin.Begin);
-                    teamId = teamEntity.TeamId;
+                    using (var jsonReader = new JsonTextReader(streamReader))
+                    {
+                        var obj = JObject.Load(jsonReader);
+                        var teamEntity = obj.ToObject<TeamSkillEntity>();
+                        authorizationFilterContext.HttpContext.Request.Body.Seek(0, SeekOrigin.Begin);
+                        teamId = teamEntity.TeamId;
+                    }
                 }
                 else
                 {
