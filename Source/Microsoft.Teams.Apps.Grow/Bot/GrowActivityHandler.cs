@@ -1,4 +1,4 @@
-﻿// <copyright file="GrowActivityHandler.cs" company="Microsoft">
+// <copyright file="GrowActivityHandler.cs" company="Microsoft">
 // Copyright (c) Microsoft. All rights reserved.
 // </copyright>
 
@@ -27,6 +27,7 @@ namespace Microsoft.Teams.Apps.Grow.Bot
     using Microsoft.Teams.Apps.Grow.Resources;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
+    using static Microsoft.Teams.Apps.Grow.Helpers.ProjectStatusHelper;
 
     /// <summary>
     /// This class is responsible for reacting to incoming events from Microsoft Teams sent from BotFramework.
@@ -34,24 +35,19 @@ namespace Microsoft.Teams.Apps.Grow.Bot
     public sealed class GrowActivityHandler : TeamsActivityHandler
     {
         /// <summary>
-        /// Sets the height of the task module.
+        /// Sets the height of the join project task module.
         /// </summary>
         private const int TaskModuleHeight = 500;
 
         /// <summary>
-        /// Sets the width of the task module.
+        /// Sets the width of the join project task module.
         /// </summary>
         private const int TaskModuleWidth = 600;
 
         /// <summary>
-        /// Represents the join project command for task module.
+        /// Represents the join project command for join project task module.
         /// </summary>
         private const string JoinProjectCommand = "joinproject";
-
-        /// <summary>
-        /// Event name for user joined project HTTP post call.
-        /// </summary>
-        private const string RecordAcquiredSkillHTTPPostCall = "User joined project - HTTP Post call succeeded";
 
         /// <summary>
         /// State management object for maintaining user conversation state.
@@ -89,11 +85,6 @@ namespace Microsoft.Teams.Apps.Grow.Bot
         private readonly IUserMembershipProvider userMembershipProvider;
 
         /// <summary>
-        /// Entity id of the static discover tab.
-        /// </summary>
-        private readonly string discoverTabEntityId;
-
-        /// <summary>
         /// Instance of team skill storage provider.
         /// </summary>
         private readonly ITeamSkillStorageProvider teamSkillStorageProvider;
@@ -119,7 +110,6 @@ namespace Microsoft.Teams.Apps.Grow.Bot
         /// <param name="logger">Instance to send logs to the Application Insights service.</param>
         /// <param name="localizer">The current cultures' string localizer.</param>
         /// <param name="telemetryClient">The Application Insights telemetry client.</param>
-        /// <param name="options">>A set of key/value application configuration properties for activity handler.</param>
         /// <param name="messagingExtensionHelper">Helper to send cards and display projects in messaging extension.</param>
         /// <param name="userState">State management object for maintaining user conversation state.</param>
         /// <param name="userMembershipProvider">Provider instance to work with user team membership data.</param>
@@ -132,7 +122,6 @@ namespace Microsoft.Teams.Apps.Grow.Bot
             ILogger<GrowActivityHandler> logger,
             IStringLocalizer<Strings> localizer,
             TelemetryClient telemetryClient,
-            IOptions<GrowActivityHandlerOptions> options,
             IMessagingExtensionHelper messagingExtensionHelper,
             UserState userState,
             IUserMembershipProvider userMembershipProvider,
@@ -145,12 +134,10 @@ namespace Microsoft.Teams.Apps.Grow.Bot
             this.logger = logger;
             this.localizer = localizer;
             this.telemetryClient = telemetryClient;
-            options = options ?? throw new ArgumentNullException(nameof(options));
             this.messagingExtensionHelper = messagingExtensionHelper;
             this.userState = userState;
             this.userMembershipProvider = userMembershipProvider;
             this.botOptions = botOptions ?? throw new ArgumentNullException(nameof(botOptions));
-            this.discoverTabEntityId = options.Value.DiscoverTabEntityId;
             this.teamSkillStorageProvider = teamSkillStorageProvider;
             this.projectStorageProvider = projectStorageProvider;
             this.projectSearchService = projectSearchService;
@@ -168,16 +155,8 @@ namespace Microsoft.Teams.Apps.Grow.Bot
         /// </remarks>
         public override Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
         {
-            try
-            {
-                turnContext = turnContext ?? throw new ArgumentNullException(nameof(turnContext));
-                this.RecordEvent(nameof(this.OnTurnAsync), turnContext);
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogError(ex, $"Error at OnTurnAsync(): {ex.Message}", SeverityLevel.Error);
-                throw;
-            }
+            turnContext = turnContext ?? throw new ArgumentNullException(nameof(turnContext));
+            this.RecordEvent(nameof(this.OnTurnAsync), turnContext);
 
             return base.OnTurnAsync(turnContext, cancellationToken);
         }
@@ -192,36 +171,28 @@ namespace Microsoft.Teams.Apps.Grow.Bot
         {
             turnContext = turnContext ?? throw new ArgumentNullException(nameof(turnContext));
 
-            try
+            this.RecordEvent(nameof(this.OnConversationUpdateActivityAsync), turnContext);
+
+            var activity = turnContext.Activity;
+            this.logger.LogInformation($"conversationType: {activity.Conversation.ConversationType}, membersAdded: {activity.MembersAdded?.Count}, membersRemoved: {activity.MembersRemoved?.Count}");
+
+            if (activity.Conversation.ConversationType == ConversationTypes.Personal)
             {
-                this.RecordEvent(nameof(this.OnConversationUpdateActivityAsync), turnContext);
-
-                var activity = turnContext.Activity;
-                this.logger.LogInformation($"conversationType: {activity.Conversation.ConversationType}, membersAdded: {activity.MembersAdded?.Count}, membersRemoved: {activity.MembersRemoved?.Count}");
-
-                if (activity.Conversation.ConversationType == ConversationTypes.Personal)
+                if (activity.MembersAdded != null && activity.MembersAdded.Any(member => member.Id == activity.Recipient.Id))
                 {
-                    if (activity.MembersAdded != null && activity.MembersAdded.Any(member => member.Id == activity.Recipient.Id))
-                    {
-                        await this.HandleMemberAddedinPersonalScopeAsync(turnContext);
-                    }
-                }
-                else if (activity.Conversation.ConversationType == ConversationTypes.Channel)
-                {
-                    if (activity.MembersAdded != null && activity.MembersAdded.Any(member => member.Id == activity.Recipient.Id))
-                    {
-                        await this.HandleMemberAddedInTeamAsync(turnContext);
-                    }
-                    else if (activity.MembersRemoved != null && activity.MembersRemoved.Any(member => member.Id == activity.Recipient.Id))
-                    {
-                        await this.HandleMemberRemovedInTeamScopeAsync(turnContext);
-                    }
+                    await this.HandleMemberAddedinPersonalScopeAsync(turnContext);
                 }
             }
-            catch (Exception ex)
+            else if (activity.Conversation.ConversationType == ConversationTypes.Channel)
             {
-                this.logger.LogError(ex, "Exception occurred while bot conversation update event.");
-                throw;
+                if (activity.MembersAdded != null && activity.MembersAdded.Any(member => member.Id == activity.Recipient.Id))
+                {
+                    await this.HandleMemberAddedInTeamAsync(turnContext);
+                }
+                else if (activity.MembersRemoved != null && activity.MembersRemoved.Any(member => member.Id == activity.Recipient.Id))
+                {
+                    await this.HandleMemberRemovedInTeamScopeAsync(turnContext);
+                }
             }
         }
 
@@ -285,25 +256,27 @@ namespace Microsoft.Teams.Apps.Grow.Bot
                 var postedValues = JsonConvert.DeserializeObject<BotCommand>(JObject.Parse(taskModuleRequest.Data.ToString()).SelectToken("data").ToString());
                 var command = postedValues.Text;
 
-                return command.ToUpperInvariant() switch
+                switch (command.ToUpperInvariant())
                 {
-                    // Messaging Extension attachment card view project details button.
-                    Constants.ViewProjectDetail => new TaskModuleResponse
-                    {
-                        Task = new TaskModuleContinueResponse
+                    case Constants.ViewProjectDetail:
+                        return new TaskModuleResponse
                         {
-                            Type = "continue",
-                            Value = new TaskModuleTaskInfo()
+                            Task = new TaskModuleContinueResponse
                             {
-                                Url = $"{this.botOptions.Value.AppBaseUri}/join-project?projectId={postedValues.ProjectId}&currentUserId={activity.From.AadObjectId}&createdByUserId={postedValues.CreatedByUserId}",
-                                Height = TaskModuleHeight,
-                                Width = TaskModuleWidth,
-                                Title = this.localizer.GetString("ApplicationName"),
+                                Type = "continue",
+                                Value = new TaskModuleTaskInfo()
+                                {
+                                    Url = $"{this.botOptions.Value.AppBaseUri}/join-project?projectId={postedValues.ProjectId}&currentUserId={activity.From.AadObjectId}&createdByUserId={postedValues.CreatedByUserId}",
+                                    Height = TaskModuleHeight,
+                                    Width = TaskModuleWidth,
+                                    Title = this.localizer.GetString("ApplicationName"),
+                                },
                             },
-                        },
-                    },
-                    _ => default,
-                };
+                        };
+
+                    default:
+                        return null;
+                }
             }
             catch (Exception ex)
             {
@@ -325,20 +298,16 @@ namespace Microsoft.Teams.Apps.Grow.Bot
                 turnContext = turnContext ?? throw new ArgumentNullException(nameof(turnContext));
                 var message = turnContext.Activity;
 
-                if (!string.IsNullOrEmpty(message.Text))
+                if (message != null && !string.IsNullOrEmpty(message.Text))
                 {
-                    var command = message?.RemoveRecipientMention()?.Trim();
+                    var command = message.RemoveRecipientMention()?.Trim();
 
                     switch (command?.ToUpperInvariant())
                     {
                         case Constants.HelpCommand: // Help command to get the information about the bot.
                             this.logger.LogInformation("Sending user help card");
                             var userHelpCards = CarouselCard.GetUserHelpCards(this.botOptions.Value.AppBaseUri);
-                            await turnContext.SendActivityAsync(MessageFactory.Carousel(userHelpCards)).ConfigureAwait(false);
-                            break;
-
-                        case Constants.ViewProjectDetail: // Preference command to get the card to setup the tags preference of a team.
-                            await turnContext.SendActivityAsync(MessageFactory.Attachment(WelcomeCard.GetPreferenceCard(localizer: this.localizer)), cancellationToken).ConfigureAwait(false);
+                            await turnContext.SendActivityAsync(MessageFactory.Carousel(userHelpCards));
                             break;
                     }
                 }
@@ -393,7 +362,7 @@ namespace Microsoft.Teams.Apps.Grow.Bot
                     var projectDetails = await this.projectStorageProvider.GetProjectAsync(joinProjectData.ProjectDetails.CreatedByUserId, joinProjectData.ProjectDetails.ProjectId);
 
                     // Allow user to join project which has status 'Active' and 'Not started'.
-                    if (projectDetails != null && !projectDetails.IsRemoved && (projectDetails.Status == 1 || projectDetails.Status == 2))
+                    if (projectDetails != null && !projectDetails.IsRemoved && (projectDetails.Status == (int)StatusEnum.NotStarted || projectDetails.Status == (int)StatusEnum.Active))
                     {
                         // If there no existing participants
                         if (string.IsNullOrEmpty(projectDetails.ProjectParticipantsUserIds))
@@ -444,7 +413,7 @@ namespace Microsoft.Teams.Apps.Grow.Bot
                                     turnContext.Activity.From.Name,
                                     joinProjectData.Upn);
 
-                        this.RecordEvent(RecordAcquiredSkillHTTPPostCall, turnContext);
+                        this.RecordEvent("User joined project - HTTP Post call succeeded", turnContext);
 
                         return new TaskModuleResponse
                         {
@@ -465,7 +434,7 @@ namespace Microsoft.Teams.Apps.Grow.Bot
                     return this.GetErrorResponse();
                 }
 
-                return default;
+                return null;
             }
             catch (Exception ex)
             {
@@ -481,10 +450,14 @@ namespace Microsoft.Teams.Apps.Grow.Bot
         /// <param name="turnContext">Provides context for a turn in a bot.</param>
         private void RecordEvent(string eventName, ITurnContext turnContext)
         {
+            var teamsChannelData = turnContext.Activity.GetChannelData<TeamsChannelData>();
+
             this.telemetryClient.TrackEvent(eventName, new Dictionary<string, string>
             {
                 { "userId", turnContext.Activity.From.AadObjectId },
                 { "tenantId", turnContext.Activity.Conversation.TenantId },
+                { "teamId", teamsChannelData?.Team?.Id },
+                { "channelId", teamsChannelData?.Channel?.Id },
             });
         }
 
@@ -532,7 +505,7 @@ namespace Microsoft.Teams.Apps.Grow.Bot
                     this.botOptions.Value.AppBaseUri,
                     localizer: this.localizer,
                     this.botOptions.Value.ManifestId,
-                    this.discoverTabEntityId);
+                    Constants.DiscoverTabEntityId);
 
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(userWelcomeCardAttachment));
 
@@ -564,7 +537,6 @@ namespace Microsoft.Teams.Apps.Grow.Bot
             TeamSkillEntity teamEntity = new TeamSkillEntity
             {
                 TeamId = teamsDetails.Id,
-                RowKey = teamsDetails.Id,
                 CreatedByUserId = turnContext.Activity.From.AadObjectId,
                 BotInstalledOn = DateTime.UtcNow,
                 ServiceUrl = activity.ServiceUrl,
