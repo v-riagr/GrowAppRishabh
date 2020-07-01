@@ -303,10 +303,10 @@ namespace Microsoft.Teams.Apps.Grow.Controllers
                 if (projects != null)
                 {
                     projectOwnerNames = projects
-                        .GroupBy(projects => projects.CreatedByUserId)
+                        .GroupBy(projects1 => projects1.CreatedByUserId)
                         .OrderByDescending(groupedProject => groupedProject.Count())
                         .Take(50)
-                        .Select(projects => projects.First().CreatedByName)
+                        .Select(projects2 => projects2.First().CreatedByName)
                         .OrderBy(createdByName => createdByName).ToList();
 
                     this.RecordEvent("Team Project unique owner names - HTTP Get call succeeded.");
