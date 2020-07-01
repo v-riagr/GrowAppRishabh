@@ -65,22 +65,23 @@ namespace Microsoft.Teams.Apps.Grow.Helpers
         /// <returns>Returns a localized status from the id value.</returns>
         public ProjectStatus GetStatus(int key)
         {
-            return key switch
+            switch (key)
             {
-                (int)StatusEnum.NotStarted =>
-                    new ProjectStatus { StatusName = this.localizer.GetString("NotStartedStatusType"), IconName = "notStartedStatusDot.png", StatusId = 1 },
+                case (int)StatusEnum.NotStarted:
+                    return new ProjectStatus { StatusName = this.localizer.GetString("NotStartedStatusType"), IconName = "notStartedStatusDot.png", StatusId = 1 };
 
-                (int)StatusEnum.Active =>
-                    new ProjectStatus { StatusName = this.localizer.GetString("ActiveStatusType"), IconName = "activeStatusDot.png", StatusId = 2 },
+                case (int)StatusEnum.Active:
+                    return new ProjectStatus { StatusName = this.localizer.GetString("ActiveStatusType"), IconName = "activeStatusDot.png", StatusId = 2 };
 
-                (int)StatusEnum.Blocked =>
-                    new ProjectStatus { StatusName = this.localizer.GetString("BlockedStatusType"), IconName = "blockedStatusDot.png", StatusId = 3 },
+                case (int)StatusEnum.Blocked:
+                    return new ProjectStatus { StatusName = this.localizer.GetString("BlockedStatusType"), IconName = "blockedStatusDot.png", StatusId = 3 };
 
-                (int)StatusEnum.Closed =>
-                    new ProjectStatus { StatusName = this.localizer.GetString("ClosedStatusType"), IconName = "closedStatusDot.png", StatusId = 4 },
+                case (int)StatusEnum.Closed:
+                    return new ProjectStatus { StatusName = this.localizer.GetString("ClosedStatusType"), IconName = "closedStatusDot.png", StatusId = 4 };
 
-                _ => null,
-            };
+                default:
+                    return null;
+            }
         }
     }
 }
